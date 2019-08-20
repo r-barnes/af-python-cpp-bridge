@@ -9,6 +9,13 @@ def get_gpu_pointer(x):
     af.device.unlock_array(x)
     return adr.value
 
+def array_from_af_pointer(af_array_ptr):
+    out = af.Array()
+    out.arr = ctypes.c_void_p(af_array_ptr)
+    print("Converting from ",hex(af_array_ptr))
+    return out
+
+
 # use gpu backend
 af.set_backend('cuda')
 af.set_device(0)  # select the gpu to use
@@ -36,7 +43,5 @@ for x in range(10):
     b = testlib.testfunc(ctypes.addressof(afvan.arr), ctypes.addressof(afthr.arr))
     print("\n\n################Python", flush=True)
     af.device.print_mem_info("back in python")
-    c = af.array.Array(src=b, dims=afvan.shape, dtype=af.Dtype.f32, is_device=True)
+    c = array_from_af_pointer(b)
     af.device.print_mem_info("after defining array")
-    af.device.lock_array(c) #TODO: Do I need to do this to take ownership of the memory?
-    af.device.print_mem_info("after locking array")
