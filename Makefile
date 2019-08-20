@@ -2,14 +2,11 @@
 
 #[2/2] : && /usr/bin/c++ -fPIC    -shared  -o src/pathai.cpython-36m-x86_64-linux-gnu.so src/CMakeFiles/pathai.dir/442.cpp.o  -flto -lafcuda && :
 
-all: cpp_interface.o kernels.o
-	g++-6 -g -o testlib.so -shared -fPIC cpp_interface.o kernels.o -flto -lafcuda -lcudart -Wall -Wextra
-
-kernels.o: kernels.cu
-	nvcc -G -std=c++11 -Xcompiler -fPIC,-Wall,-Wextra -c kernels.cu -lafcuda -laf -lcudart -lcuda
+all: cpp_interface.o
+	g++-6 -g -o testlib.so -shared -fPIC cpp_interface.o -flto -lafcuda -lcudart -Wall -Wextra
 
 cpp_interface.o: cpp_interface.cpp
-	g++-6 -g -fPIC -c cpp_interface.cpp -I/usr/include/python3.6m -I../pathai/submodules/pybind11/include -lafcuda -laf -Wall -Wextra -fvisibility=hidden
+	g++-6 -g -fPIC -c cpp_interface.cpp -I/usr/include/python3.6m -Isubmodules/pybind11/include -lafcuda -laf -Wall -Wextra -fvisibility=hidden
 
 clean:
 	rm -rf *.o *.so

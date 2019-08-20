@@ -2,24 +2,19 @@
 #include <arrayfire.h>
 #include <cmath>
 #include <iostream>
-#include "kernels.h"
 
 uint64_t testfunc(
     uint64_t input_ptr,
-    uint64_t input2_ptr,
-    const int width,
-    const int height
+    uint64_t input2_ptr
 ){
-    const int size=width*height;
-    std::cout<<"input_ptr = "<<input_ptr<<std::endl;
-    // The Gerchberg-Saxon update (GS update) is in fact gradient descent with step size 1
-    af::array input(*(void**)input_ptr);
-    af::array input2(*(void**)input2_ptr);
+    af::array input (*(af_array**)input_ptr);
+    af::array input2(*(af_array**)input2_ptr);
 
-    input *= input2;
+    af::array out = input*input2;
 
-    std::cout<<__LINE__<<std::endl;
-    return reinterpret_cast<uint64_t>(input.copy().device<float>());
+    //Need to return device pointer since otherwise af_array reaches end of
+    //life, likely before it can be saved by getting reinstantiated
+    return reinterpret_cast<uint64_t>(out.device<float>());
 }
 
 PYBIND11_MODULE(testlib, m) {
@@ -27,6 +22,7 @@ PYBIND11_MODULE(testlib, m) {
 
     af::setBackend(AF_BACKEND_CUDA);
     af::setDevice(0);
+    af_info();
 
     m.def("testfunc", &testfunc, "TODO desc");
 }

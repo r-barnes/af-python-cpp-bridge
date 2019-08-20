@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import arrayfire as af
 import numpy as np
 import ctypes
@@ -22,11 +23,6 @@ afthr = afthr.as_type(af.Dtype.f32)
 
 print("Loop", flush=True)
 for x in range(10):
-    b = testlib.testfunc(ctypes.addressof(afvan.arr), ctypes.addressof(afthr.arr), 4, 4)
-    print("back", flush=True)
-    af.device.unlock_array(afvan)
-    af.device.unlock_array(afthr)
-    print("unlocked", flush=True)
-    c = af.array.Array(src=b, dims=(4,4), dtype=af.Dtype.f32, is_device=True)
-    print("wrapped", flush=True)
-    print(c)
+    b = testlib.testfunc(ctypes.addressof(afvan.arr), ctypes.addressof(afthr.arr))
+    c = af.array.Array(src=b, dims=afvan.shape, dtype=af.Dtype.f32, is_device=True)
+    af.device.lock_array(c) #TODO: Do I need to do this to take ownership of the memory?
