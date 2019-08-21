@@ -21,8 +21,17 @@ uint64_t testfunc(
     std::cout<<"input_ptr afarr="<<std::hex<<(input_ptr)<<std::endl;
     std::cout<<"input2_ptr afarr="<<std::hex<<(input2_ptr)<<std::endl;
 
-    af::array input (*(af_array**)input_ptr);
-    af::array input2(*(af_array**)input2_ptr);
+    af_array temp1 = reinterpret_cast<af_array>(input_ptr);
+    af_array temp2 = reinterpret_cast<af_array>(input2_ptr);
+
+    af_array temp1_copy;
+    af_array temp2_copy;
+
+    af_retain_array(&temp1_copy, temp1);
+    af_retain_array(&temp2_copy, temp2);
+
+    af::array input (temp1_copy);
+    af::array input2(temp2_copy);
 
     std::cout<<"input_ptr gpu="<<std::hex<<get_gpu_pointer(input)<<std::endl;
     std::cout<<"input2_ptr gpu="<<std::hex<<get_gpu_pointer(input2)<<std::endl;
