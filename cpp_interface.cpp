@@ -10,6 +10,18 @@ uint64_t get_gpu_pointer(af::array &arr){
     return adr;
 }
 
+af::array external_pointer_to_internal_array(const uint64_t input_ptr){
+    //Cast pointer to af_array
+    af_array arr = reinterpret_cast<af_array>(input_ptr);    
+
+    //Increment the array's reference count so when af::array goes out of scope
+    //it doesn't scrub the array's memory.
+    af_array temp_ref;
+    af_retain_array(&temp_ref, arr);
+
+    return af::array(temp_ref);
+}
+
 uint64_t testfunc(
     uint64_t input_ptr,
     uint64_t input2_ptr
@@ -21,17 +33,8 @@ uint64_t testfunc(
     std::cout<<"input_ptr afarr="<<std::hex<<(input_ptr)<<std::endl;
     std::cout<<"input2_ptr afarr="<<std::hex<<(input2_ptr)<<std::endl;
 
-    af_array temp1 = reinterpret_cast<af_array>(input_ptr);
-    af_array temp2 = reinterpret_cast<af_array>(input2_ptr);
-
-    af_array temp1_copy;
-    af_array temp2_copy;
-
-    af_retain_array(&temp1_copy, temp1);
-    af_retain_array(&temp2_copy, temp2);
-
-    af::array input (temp1_copy);
-    af::array input2(temp2_copy);
+    auto input = external_pointer_to_internal_array(input_ptr);
+    auto input2 = external_pointer_to_internal_array(input2_ptr);
 
     std::cout<<"input_ptr gpu="<<std::hex<<get_gpu_pointer(input)<<std::endl;
     std::cout<<"input2_ptr gpu="<<std::hex<<get_gpu_pointer(input2)<<std::endl;
